@@ -1,0 +1,105 @@
+name: NewtonsLunarChickens
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - name
+      - name: email
+        type: email
+      - name: role
+        type: choice
+        options:
+          values: [admin, scientist]
+        default: scientist
+    policies:
+      create:
+        - access: admin
+      read:
+        - access: restricted
+          allow: User
+          condition: self
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: admin
+      signup:
+        - access: public
+
+  Chicken:
+    properties:
+      - name: name
+        type: string
+      - name: breed
+        type: choice
+        options:
+          values: ['Lunar Leghorn', 'Cosmic Cochin', 'Galactic Gamefowl', 'Meteor Minorca']
+        default: 'Lunar Leghorn'
+      - name: eggLayingRate
+        type: number
+        helpText: 'Average eggs laid per Earth day.'
+      - name: featherColor
+        type: string
+    belongsTo:
+      - name: observer
+        entity: User
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+  Observation:
+    properties:
+      - name: title
+        type: string
+      - name: details
+        type: richText
+      - name: observationDate
+        type: timestamp
+      - name: gravityReading
+        type: number
+        helpText: 'Local gravity reading at time of observation.'
+      - name: status
+        type: choice
+        options:
+          values: [draft, published]
+        default: draft
+    belongsTo:
+      - name: scientist
+        entity: User
+      - Chicken
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+
+# Health check endpoint for connection testing
+endpoints:
+  health:
+    path: /api/health
+    method: GET
+    policies: []
+    handler: healthCheck
